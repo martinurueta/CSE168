@@ -36,7 +36,7 @@ using grpc::Status;
 using helloworld::Greeter;
 using helloworld::HelloReply;
 using helloworld::HelloRequest;
-float joe = 0;
+float Total_Time = 0;
 
 class GreeterClient {
  public:
@@ -58,12 +58,14 @@ class GreeterClient {
     ClientContext context;
 
     // The actual RPC.
+    
     auto start = high_resolution_clock::now();
     Status status = stub_->SayHello(&context, request, &reply);
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>(stop - start);
     // std::cout << "Latency" << duration.count() << " microseconds" << std::endl;
-    joe = duration.count() + joe;
+    //calculate the time per RPC
+    Total_Time = duration.count() + Total_Time;
 
     // Act upon its status.
     if (status.ok()) {
@@ -105,6 +107,7 @@ int main(int argc, char** argv) {
   } else {
     target_str = "localhost:50051";
   }
+  //to call the server multiple times
   for (int i = 0; i < 100; i++){
   GreeterClient greeter(
   grpc::CreateChannel(target_str, grpc::InsecureChannelCredentials()));
@@ -112,9 +115,9 @@ int main(int argc, char** argv) {
   std::string reply = greeter.SayHello(user);
   // std::cout << "Greeter received: " << reply << std::endl;
   }
-  joe = (joe / 1000000);
-  joe = 100 / joe;
-  std::cout << "TOTAL TIME" << joe << " Message / Seconds" << std::endl;
+  Total_Time = (Total_Time / 1000000);
+  Total_Time = 100 / Total_Time;
+  std::cout << "TOTAL TIME " << Total_Time << " Message / Seconds" << std::endl;
 
   return 0;
 }
